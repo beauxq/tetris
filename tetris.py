@@ -34,7 +34,10 @@ class Grid:
             # move this row down in the amount of count_dis_below
             self.rows[row + count_dis_below] = self.rows[row]
             row -= 1
-        # FIXME: add blank rows at the top
+        # add blank rows at the top
+        while row < len(full_rows) - 1:
+            row += 1
+            self.rows[row] = [0 for _ in range(self.w)]
 
     def __repr__(self):
         to_return = ""
@@ -156,6 +159,7 @@ class Faller:
 
 
 class Tetris:
+    """ the game without any timing """
     def __init__(self):
         self.grid = Grid()
         self.faller = Faller(Faller.Shape.COUNT, self.grid.w // 2 - 1)
@@ -163,7 +167,8 @@ class Tetris:
         self.lose = False
         self.full_rows = []
 
-    def fall(self):
+    def fall(self) -> bool:
+        """ returns whether new piece enters the field """
         if self.faller.shape == Faller.Shape.COUNT:  # if shape is null
             self.grid.disappear_rows(self.full_rows)
             self.faller.shape = self.next_shape
@@ -175,6 +180,7 @@ class Tetris:
             self.faller.y = 0
             if self.lose:
                 self.faller.stop(self.grid)
+            return True
         else:  # shape is not null
             if self.faller.can_fall(self.grid):
                 self.faller.y += 1
@@ -182,6 +188,7 @@ class Tetris:
                 self.faller.stop(self.grid)
                 self.full_rows = self.grid.get_full_rows()
                 self.faller.shape = Faller.Shape.COUNT  # null
+            return False
 
     def move(self, dx: int):
         return self.faller.move_x(self.grid, dx)
