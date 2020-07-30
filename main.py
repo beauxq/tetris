@@ -70,8 +70,9 @@ class GuiMain:
                 self.keys[pygame.K_DOWN] = \
                     self.keys[pygame.K_DOWN] and (not new_piece)
                 # speed up every time a new piece enters
-                self.delay = max(self.delay - int(new_piece), FAST_FALL_DELAY)
-                last_fall = pygame.time.get_ticks()
+                self.delay = max(self.delay * (1 - int(new_piece)/100),
+                                 FAST_FALL_DELAY)
+                last_fall = now
             if now > self.move_allowed_after:
                 if self.keys[pygame.K_LEFT]:
                     self.game.move(-1)
@@ -102,10 +103,19 @@ class GuiMain:
             for block in self.game.faller.get_blocks():
                 x = self.game.faller.x + block[0]
                 y = self.game.faller.y + block[1]
-                shape = self.game.faller.shape + 1
+                color_base = self.game.faller.shape + 1
                 pygame.draw.rect(self.screen,
-                                 (36 * shape, 255 - (36 * shape), 0),
+                                 (36 * color_base, 255 - (36 * color_base), 0),
                                  pygame.Rect(x * 20 + 20, y * 20 + 20, 18, 18))
+
+        # next piece
+        for block in Faller.BLOCKS[self.game.next_shape][0]:
+            x = self.game.grid.w + 1 + block[0]
+            y = 1 + block[1]
+            color_base = self.game.next_shape + 1
+            pygame.draw.rect(self.screen,
+                             (36 * color_base, 255 - (36 * color_base), 0),
+                             pygame.Rect(x * 20 + 20, y * 20 + 20, 18, 18))
 
 
 if __name__ == "__main__":
