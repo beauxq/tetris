@@ -3,6 +3,9 @@ from collections import defaultdict
 
 from tetris import Tetris, Faller
 
+FAST_FALL_DELAY = 50  # ms between falls when holding down
+MOVE_DELAY = 180  # ms between moves when holding left/right
+
 
 class GuiMain:
     """ the window and timing for the game """
@@ -14,8 +17,8 @@ class GuiMain:
 
         self.fps = 60
         self.keys = defaultdict(lambda: False)
-        self.down_key = False
         self.delay = 1000  # milliseconds between each down tick
+        self.move_allowed_after = 0  # ms between moves left/right
 
     def process_events(self):
         """ window events """
@@ -36,8 +39,12 @@ class GuiMain:
                 self.keys[event.key] = True
                 if event.key == pygame.K_LEFT:
                     self.game.move(-1)
+                    self.move_allowed_after = \
+                        pygame.time.get_ticks() + MOVE_DELAY * 2
                 elif event.key == pygame.K_RIGHT:
                     self.game.move(1)
+                    self.move_allowed_after = \
+                        pygame.time.get_ticks() + MOVE_DELAY * 2
                 elif event.key == pygame.K_KP9:
                     self.game.rotate(1)
                 elif event.key == pygame.K_KP6:
@@ -54,12 +61,24 @@ class GuiMain:
         while self.running:
             pygame_clock.tick(self.fps)
 
-            ms_between_fall = 50 if self.keys[pygame.K_DOWN] else self.delay
-            if pygame.time.get_ticks() > last_fall + ms_between_fall:
+            now = pygame.time.get_ticks()
+            ms_between_fall = FAST_FALL_DELAY if self.keys[pygame.K_DOWN] \
+                else self.delay
+            if now > last_fall + ms_between_fall:
                 new_piece = self.game.fall()
+                # pretend down key is released when making a new piece
+                self.keys[pygame.K_DOWN] = \
+                    self.keys[pygame.K_DOWN] and (not new_piece)
                 # speed up every time a new piece enters
-                self.delay = max(self.delay - int(new_piece), 50)
+                self.delay = max(self.delay - int(new_piece), FAST_FALL_DELAY)
                 last_fall = pygame.time.get_ticks()
+            if now > self.move_allowed_after:
+                if self.keys[pygame.K_LEFT]:
+                    self.game.move(-1)
+                    self.move_allowed_after = now + MOVE_DELAY
+                if self.keys[pygame.K_RIGHT]:
+                    self.game.move(1)
+                    self.move_allowed_after = now + MOVE_DELAY
 
             self.process_events()
 
@@ -76,7 +95,7 @@ class GuiMain:
                 pygame.draw.rect(self.screen,
                                  (36 * block,
                                   255 - (36 * block) if block else 0, 0),
-                                 pygame.Rect(x * 20 + 20, y * 20 + 20, 18, 18))
+                                 pygame.Rect(x * 20 + 20, y * 20 + 20, 19, 19))
 
         # faller
         if self.game.faller.shape != Faller.Shape.COUNT:
