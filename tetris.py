@@ -10,6 +10,8 @@ class Grid:
         self.h = h
 
     def get(self, x: int, y: int):
+        if x < 0 or y < 0:
+            raise IndexError
         return self.rows[y][x]
 
     def set(self, x: int, y: int, value: int):
@@ -134,27 +136,43 @@ class Faller:
             if x_to_check < 0 or x_to_check >= grid.w:
                 can_move = False
                 break
-            if grid.get(x_to_check, self.y + block[1]):
+            if (self.y + block[1] > -1) and \
+                    grid.get(x_to_check, self.y + block[1]):
                 can_move = False
         if can_move:
             self.x += dx
         return can_move
 
-    def rotate(self, grid: Grid, d_clockwise: int):
+    def rotate(self, grid: Grid, d_clockwise: int, x_adjust=0):
         if self.shape == Faller.Shape.COUNT:
             return False
         can_rotate = True
         for block in self.get_blocks(d_clockwise):
-            x_to_check = self.x + block[0]
+            x_to_check = self.x + block[0] + x_adjust
             y_to_check = self.y + block[1]
             if x_to_check < 0 or x_to_check >= grid.w or\
-                    y_to_check < 0 or y_to_check >= grid.h:
+                    y_to_check >= grid.h:
                 can_rotate = False
                 break
-            if grid.get(x_to_check, y_to_check):
+            if y_to_check > -1 and grid.get(x_to_check, y_to_check):
                 can_rotate = False
         if can_rotate:
             self.rotation = (self.rotation - d_clockwise) % 4
+        elif x_adjust == 0:
+            can_left = self.rotate(grid, d_clockwise, -1)
+            self.x -= can_left
+            if can_left:
+                return can_left
+            if self.shape == Faller.Shape.I:
+                # try 1 right and 2 left
+                can_right = self.rotate(grid, d_clockwise, 1)
+                self.x += can_right
+                if can_right:
+                    return can_right
+                # try 2 left
+                can_2_left = self.rotate(grid, d_clockwise, -2)
+                self.x -= 2 * can_2_left
+                return can_2_left
         return can_rotate
 
 

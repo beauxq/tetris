@@ -5,6 +5,7 @@ from tetris import Tetris, Faller
 
 FAST_FALL_DELAY = 50  # ms between falls when holding down
 MOVE_DELAY = 180  # ms between moves when holding left/right
+STARTING_FALL_DELAY = 1000  # ms between falls
 
 
 class GuiMain:
@@ -17,7 +18,7 @@ class GuiMain:
 
         self.fps = 60
         self.keys = defaultdict(lambda: False)
-        self.delay = 1000  # milliseconds between each down tick
+        self.delay = STARTING_FALL_DELAY  # milliseconds between each down tick
         self.move_allowed_after = 0  # ms between moves left/right
 
     def process_events(self):
@@ -106,7 +107,7 @@ class GuiMain:
                 color_base = self.game.faller.shape + 1
                 pygame.draw.rect(self.screen,
                                  (36 * color_base, 255 - (36 * color_base), 0),
-                                 pygame.Rect(x * 20 + 20, y * 20 + 20, 18, 18))
+                                 pygame.Rect(x * 20 + 20, y * 20 + 20, 19, 19))
 
         # next piece
         for block in Faller.BLOCKS[self.game.next_shape][0]:
@@ -115,7 +116,7 @@ class GuiMain:
             color_base = self.game.next_shape + 1
             pygame.draw.rect(self.screen,
                              (36 * color_base, 255 - (36 * color_base), 0),
-                             pygame.Rect(x * 20 + 20, y * 20 + 20, 18, 18))
+                             pygame.Rect(x * 20 + 30, y * 20 + 20, 19, 19))
 
 
 if __name__ == "__main__":
