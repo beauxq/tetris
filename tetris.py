@@ -17,7 +17,8 @@ class Grid:
     def set(self, x: int, y: int, value: int):
         self.rows[y][x] = value
 
-    def get_full_rows(self):
+    def get_full_rows(self) -> list:
+        """ rows that will disappear """
         full_rows = []
         for i, row in enumerate(self.rows):
             if 0 not in row:
