@@ -21,6 +21,8 @@ class GuiMain:
         self.delay = STARTING_FALL_DELAY  # milliseconds between each down tick
         self.move_allowed_after = 0  # ms between moves left/right
 
+        self.font = pygame.font.Font('freesansbold.ttf', 24)
+
     def process_events(self):
         """ window events """
         for event in pygame.event.get():
@@ -91,9 +93,10 @@ class GuiMain:
             pygame.display.flip()
 
     def draw(self):
+        """ draw field and faller on screen """
         block_w = 20
 
-        """ draw field and faller on screen """
+        # field
         for y, row in enumerate(self.game.grid.rows):
             for x, block in enumerate(row):
                 pygame.draw.rect(self.screen,
@@ -125,6 +128,14 @@ class GuiMain:
                              pygame.Rect((x + 1.5) * block_w,
                                          y * block_w + block_w,
                                          block_w - 1, block_w - 1))
+
+        # instructions
+        instr = "use arrows and keypad 6 and keypad 9"
+        text = self.font.render(instr, True, (0, 0, 0))
+        text_rect = text.get_rect()
+        text_rect.left = block_w
+        text_rect.top = (self.game.grid.h + 2) * block_w
+        self.screen.blit(text, text_rect)
 
 
 if __name__ == "__main__":
