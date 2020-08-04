@@ -91,13 +91,17 @@ class GuiMain:
             pygame.display.flip()
 
     def draw(self):
+        block_w = 20
+
         """ draw field and faller on screen """
         for y, row in enumerate(self.game.grid.rows):
             for x, block in enumerate(row):
                 pygame.draw.rect(self.screen,
                                  (36 * block,
                                   255 - (36 * block) if block else 0, 0),
-                                 pygame.Rect(x * 20 + 20, y * 20 + 20, 19, 19))
+                                 pygame.Rect(x * block_w + block_w,
+                                             y * block_w + block_w,
+                                             block_w - 1, block_w - 1))
 
         # faller
         if self.game.faller.shape != Faller.Shape.COUNT:
@@ -107,7 +111,9 @@ class GuiMain:
                 color_base = self.game.faller.shape + 1
                 pygame.draw.rect(self.screen,
                                  (36 * color_base, 255 - (36 * color_base), 0),
-                                 pygame.Rect(x * 20 + 20, y * 20 + 20, 19, 19))
+                                 pygame.Rect(x * block_w + block_w,
+                                             y * block_w + block_w,
+                                             block_w - 1, block_w - 1))
 
         # next piece
         for block in Faller.BLOCKS[self.game.next_shape][0]:
@@ -116,7 +122,9 @@ class GuiMain:
             color_base = self.game.next_shape + 1
             pygame.draw.rect(self.screen,
                              (36 * color_base, 255 - (36 * color_base), 0),
-                             pygame.Rect(x * 20 + 30, y * 20 + 20, 19, 19))
+                             pygame.Rect((x + 1.5) * block_w,
+                                         y * block_w + block_w,
+                                         block_w - 1, block_w - 1))
 
 
 if __name__ == "__main__":
