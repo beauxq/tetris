@@ -200,14 +200,14 @@ class Tetris:
             if self.lose:
                 self.faller.stop(self.grid)
             return True
-        else:  # shape is not null
-            if self.faller.can_fall(self.grid):
-                self.faller.y += 1
-            else:
-                self.faller.stop(self.grid)
-                self.full_rows = self.grid.get_full_rows()
-                self.faller.shape = Faller.Shape.COUNT  # null
-            return False
+        # else shape is not null
+        if self.faller.can_fall(self.grid):
+            self.faller.y += 1
+        else:
+            self.faller.stop(self.grid)
+            self.full_rows = self.grid.get_full_rows()
+            self.faller.shape = Faller.Shape.COUNT  # null
+        return False
 
     def move(self, dx: int):
         return self.faller.move_x(self.grid, dx)
