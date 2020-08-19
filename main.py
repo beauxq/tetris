@@ -1,5 +1,5 @@
-import pygame
 from collections import defaultdict
+import pygame
 
 from tetris import Tetris, Faller
 
