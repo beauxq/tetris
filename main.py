@@ -21,7 +21,7 @@ class GuiMain:
         self.delay = STARTING_FALL_DELAY  # milliseconds between each down tick
         self.move_allowed_after = 0  # ms between moves left/right
 
-        self.font = pygame.font.Font('freesansbold.ttf', 24)
+        self.font = pygame.font.Font(None, 24)
 
     def process_events(self):
         """ window events """
