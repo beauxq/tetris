@@ -9,7 +9,7 @@ class Grid:
         self.w = w
         self.h = h
 
-    def get(self, x: int, y: int):
+    def get(self, x: int, y: int) -> int:
         if x < 0 or y < 0:
             raise IndexError
         return self.rows[y][x]
