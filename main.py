@@ -4,7 +4,6 @@ import pygame
 from tetris import Tetris, Faller
 
 FAST_FALL_DELAY = 50  # ms between falls when holding down
-MOVE_DELAY = 180  # ms between moves when holding left/right
 STARTING_FALL_DELAY = 1000  # ms between falls
 
 
@@ -22,6 +21,15 @@ class GuiMain:
         self.move_allowed_after = 0  # ms between moves left/right
 
         self.font = pygame.font.Font(None, 24)
+
+    def __first_move_delay(self):
+        """ always more than 3 frames at 60 fps (assuming delay min of 50) """
+        return self.delay / 4 + 71
+
+    def __move_delay(self):
+        """ fast enough to get to the edge from the middle
+            in less than one fall tick (except when fps doesn't allow it) """
+        return self.delay / 8 + 11
 
     def process_events(self):
         """ window events """
@@ -43,11 +51,11 @@ class GuiMain:
                 if event.key == pygame.K_LEFT:
                     self.game.move(-1)
                     self.move_allowed_after = \
-                        pygame.time.get_ticks() + MOVE_DELAY * 2
+                        pygame.time.get_ticks() + self.__first_move_delay()
                 elif event.key == pygame.K_RIGHT:
                     self.game.move(1)
                     self.move_allowed_after = \
-                        pygame.time.get_ticks() + MOVE_DELAY * 2
+                        pygame.time.get_ticks() + self.__first_move_delay()
                 elif event.key == pygame.K_KP9:
                     self.game.rotate(1)
                 elif event.key == pygame.K_KP6:
@@ -69,9 +77,13 @@ class GuiMain:
                 else self.delay
             if now > last_fall + ms_between_fall:
                 new_piece = self.game.fall()
-                # pretend down key is released when making a new piece
+                # pretend arrow key is released when making a new piece
                 self.keys[pygame.K_DOWN] = \
                     self.keys[pygame.K_DOWN] and (not new_piece)
+                self.keys[pygame.K_LEFT] = \
+                    self.keys[pygame.K_LEFT] and (not new_piece)
+                self.keys[pygame.K_RIGHT] = \
+                    self.keys[pygame.K_RIGHT] and (not new_piece)
                 # speed up every time a new piece enters
                 self.delay = max(self.delay * (1 - int(new_piece)/100),
                                  FAST_FALL_DELAY)
@@ -79,10 +91,10 @@ class GuiMain:
             if now > self.move_allowed_after:
                 if self.keys[pygame.K_LEFT]:
                     self.game.move(-1)
-                    self.move_allowed_after = now + MOVE_DELAY
+                    self.move_allowed_after = now + self.__move_delay()
                 if self.keys[pygame.K_RIGHT]:
                     self.game.move(1)
-                    self.move_allowed_after = now + MOVE_DELAY
+                    self.move_allowed_after = now + self.__move_delay()
 
             self.process_events()
 
